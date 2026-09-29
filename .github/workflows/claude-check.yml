@@ -1,0 +1,62 @@
+# Claude auto-check: reviews every push to main and every pull request.
+# On a push it opens an issue only when it finds real problems; on a pull
+# request it posts one review comment.
+#
+# Needs the same setup as claude.yml. Turn it off without deleting it by
+# setting the repository variable CLAUDE_AUTOCHECK = false.
+# Skip one commit by putting [skip claude] in its message.
+name: Claude auto-check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    types: [opened, synchronize, ready_for_review, reopened]
+
+concurrency:
+  group: claude-check-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    if: >-
+      vars.CLAUDE_ENABLED == 'true' &&
+      vars.CLAUDE_AUTOCHECK != 'false' &&
+      !contains(github.event.head_commit.message || '', '[skip claude]') &&
+      (github.event_name == 'push' || !github.event.pull_request.draft)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 2
+
+      - uses: anthropics/claude-code-action@v1
+        env:
+          GH_TOKEN: ${{ github.token }}
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: |
+            You are the automatic checker for ${{ github.repository }}.
+            Event: ${{ github.event_name }}. Commit: ${{ github.sha }}. Pull request: ${{ github.event.pull_request.number || 'none' }}.
+
+            1. Find what changed: for a push, `git diff HEAD~1 HEAD` (if there is no parent commit,
+               review the whole repo briefly); for a pull request, `gh pr diff <number>`.
+            2. Look only for REAL problems: JavaScript errors, broken HTML, broken links or file paths,
+               security issues, and accessibility blockers. Ignore style preferences and nitpicks.
+            3. Report:
+               - Push with real problems: create ONE issue with
+                 `gh issue create --title "Claude check: <short summary>" --body "<findings>"`.
+                 List each problem with file:line and a suggested fix. First run
+                 `gh issue list --search "Claude check" --state open` and don't open a duplicate.
+               - Push with no real problems: do nothing.
+               - Pull request: post ONE comment with `gh pr comment <number> --body "<review>"`,
+                 starting with "✅ Looks good" or "⚠️ Found problems".
+          claude_args: >-
+            --max-turns 15
+            --allowedTools "Read,Grep,Glob,Bash(git diff:*),Bash(git log:*),Bash(git show:*),Bash(gh issue create:*),Bash(gh issue list:*),Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*)"
