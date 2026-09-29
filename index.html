@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mood Weather</title>
+  <meta name="description" content="Type how you feel and watch the sky change. Mood Weather turns your feelings into a live forecast.">
+  <meta name="theme-color" content="#070716">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌦️</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body data-mood="aurora">
+  <div class="bg" aria-hidden="true"></div>
+  <canvas id="sky" aria-hidden="true"></canvas>
+
+  <header class="topbar">
+    <a class="brand" href="#top"><span class="brand-dot"></span>Mood Weather</a>
+    <button id="menu-btn" class="menu-btn" aria-expanded="false" aria-controls="nav" aria-label="Open menu">
+      <span></span><span></span>
+    </button>
+    <nav id="nav">
+      <a href="#forecast">Forecast</a>
+      <a href="#how">How it works</a>
+      <a href="#join" class="nav-cta">Join the waitlist</a>
+    </nav>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <p class="eyebrow"><span class="pulse"></span>Live inner forecast</p>
+      <h1>What's the weather<br><span class="glow-text">inside you?</span></h1>
+      <p class="lede">Tell the sky how you feel. It'll rain, shine, storm or glow to match, and hand you a little something for the mood.</p>
+
+      <form id="mood-form" class="mood-form" autocomplete="off">
+        <label for="mood-input" class="sr-only">How are you feeling?</label>
+        <input id="mood-input" type="text" maxlength="140" placeholder="I'm feeling… a bit tired but hopeful">
+        <button type="submit" class="btn btn-primary">Forecast</button>
+      </form>
+
+      <div class="chips" role="group" aria-label="Quick moods">
+        <button type="button" class="chip" data-mood="sunny">☀️ Happy</button>
+        <button type="button" class="chip" data-mood="rainy">🌧️ Sad</button>
+        <button type="button" class="chip" data-mood="stormy">⛈️ Stressed</button>
+        <button type="button" class="chip" data-mood="snowy">❄️ Calm</button>
+        <button type="button" class="chip" data-mood="foggy">🌫️ Meh</button>
+        <button type="button" class="chip" data-mood="aurora">🌌 Inspired</button>
+      </div>
+    </section>
+
+    <section id="forecast" class="forecast" aria-live="polite">
+      <article class="card result">
+        <div class="result-head">
+          <div class="result-icon" id="r-icon">🌌</div>
+          <div>
+            <p class="result-label" id="r-label">Aurora</p>
+            <p class="result-temp">Feels like <span id="r-temp">4°</span></p>
+          </div>
+        </div>
+        <p class="result-forecast" id="r-forecast"></p>
+        <blockquote class="result-quote" id="r-quote"></blockquote>
+        <div class="result-actions">
+          <a class="btn btn-ghost" id="r-music" target="_blank" rel="noopener">♫ <span id="r-music-label">Music for this sky</span></a>
+          <button class="btn btn-ghost" id="r-share" type="button">↗ Share my sky</button>
+        </div>
+      </article>
+
+      <aside class="card week">
+        <h2>Your recent skies</h2>
+        <ol class="week-strip" id="week-strip"></ol>
+        <p class="week-empty" id="week-empty">Forecast a mood to start your personal weather history. It stays on this device.</p>
+      </aside>
+    </section>
+
+    <section id="how" class="how">
+      <h2 class="section-title">How it works</h2>
+      <div class="steps">
+        <div class="card step">
+          <span class="step-num">01</span>
+          <h3>Say it plainly</h3>
+          <p>Type a feeling in your own words, or tap a quick mood. No account needed.</p>
+        </div>
+        <div class="card step">
+          <span class="step-num">02</span>
+          <h3>Watch the sky</h3>
+          <p>Your words turn into sun, rain, snow, fog, storms or aurora, live behind the page.</p>
+        </div>
+        <div class="card step">
+          <span class="step-num">03</span>
+          <h3>Keep &amp; share</h3>
+          <p>Your last seven skies stay on this device. Send any sky to a friend with one link.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="join" class="join card">
+      <div class="join-copy">
+        <p class="eyebrow">Coming soon</p>
+        <h2>The Mood Weather app</h2>
+        <p>Daily check-ins, a monthly "climate report" of your moods, and skies you can share with friends. Join the waitlist to be first in.</p>
+      </div>
+      <form id="signup" class="signup" action="https://formspree.io/f/YOUR_FORM_ID" method="POST">
+        <label for="email" class="sr-only">Email address</label>
+        <input id="email" type="email" name="email" required placeholder="you@example.com">
+        <input type="hidden" name="mood" id="signup-mood">
+        <input type="text" name="_gotcha" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+        <button type="submit" class="btn btn-primary">Join the waitlist</button>
+        <p class="signup-msg" id="signup-msg" role="status"></p>
+      </form>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>Made with feelings and a little JavaScript · <span id="year"></span></p>
+  </footer>
+
+  <div class="toast" id="toast" role="status"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
